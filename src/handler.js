@@ -28,7 +28,8 @@ function addBookHandler(request, h) {
 
   const id = nanoid(16);
   const finished = readPage === pageCount;
-  const insertedAt = new Date().toISOString;
+  const reading = false;
+  const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
 
   const newBook = {
@@ -41,6 +42,7 @@ function addBookHandler(request, h) {
     pageCount,
     readPage,
     finished,
+    reading,
     insertedAt,
     updatedAt,
   };
@@ -75,11 +77,57 @@ function addBookHandler(request, h) {
 }
 
 function getAllBooksHandler(request, h) {
+  if (books.length === 0) {
+    const response = h.response({
+      status: 'success',
+      data: { books },
+    });
 
+    response.code(200);
+
+    return response;
+  }
+
+  const data = books.reduce((arr, book) => {
+    const { id, name, publisher } = book;
+    arr.push({ id, name, publisher });
+    return arr;
+  }, []);
+
+  const response = h.response({
+    status: 'success',
+    data: { books: data },
+  });
+
+  response.code(200);
+
+  return response;
 }
 
 function getBookByIdHandler(request, h) {
+  const { id } = request.params;
 
+  const book = books.filter((b) => b.id === id)[0];
+
+  if (book === undefined) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Buku tidak ditemukan',
+    });
+
+    response.code(404);
+
+    return response;
+  }
+
+  const response = h.response({
+    status: 'success',
+    data: { book },
+  });
+
+  response.code(200);
+
+  return response;
 }
 
 function editBookByIdHandler(request, h) {
