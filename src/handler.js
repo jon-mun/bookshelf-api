@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 const { nanoid } = require('nanoid');
 const books = require('./books');
 
@@ -89,7 +90,26 @@ function getAllBooksHandler(request, h) {
     return response;
   }
 
-  const data = books.reduce((arr, book) => {
+  // filter
+  const filteredBooks = books.filter((book) => {
+    let filter = true;
+    if (name !== undefined) {
+      filter &= book.name.toLowerCase().includes(name.toLowerCase());
+    }
+
+    if (reading !== undefined) {
+      filter &= book.reading === (reading !== '0');
+    }
+
+    if (finished !== undefined) {
+      filter &= book.finished === (finished !== '0');
+    }
+
+    return filter;
+  });
+
+  const data = filteredBooks.reduce((arr, book) => {
+    // eslint-disable-next-line no-shadow
     const { id, name, publisher } = book;
     arr.push({ id, name, publisher });
     return arr;
